@@ -2,15 +2,193 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Recommendations</title>
-	<link rel="stylesheet" href="../static/stylesheets/result.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Recommendations | FlixPick</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-dark: #b20710;
+            --dark: #141414;
+            --light: #f5f5f5;
+            --gray: #808080;
+            --dark-gray: #2d2d2d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--light);
+        }
+        
+        .results-container {
+            padding: 120px 50px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .results-title {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--light);
+            text-align: center;
+        }
+        
+        .results-title span {
+            color: var(--primary);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        
+        .movie-card {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            aspect-ratio: 2/3;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        
+        .movie-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .movie-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .movie-card:hover .movie-overlay {
+            opacity: 1;
+        }
+        
+        .movie-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .movie-meta {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .try-again {
+            display: block;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .try-again-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .try-again-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .results-container {
+                padding: 120px 20px 40px;
+            }
+            
+            .results-title {
+                font-size: 2rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class=page>
-  <h1>Here are your recommendations....</h1>
-  {% for image in images %}
-    <a href='/moviepage/{{titles[loop.index0]}}'><img src="{{image}}" width=250px height=400px/></a>
-  {% endfor %}
-</div>
+    <nav class="navbar">
+        <a href="/" class="logo">Flix<span>Pick</span></a>
+    </nav>
+    
+    <div class="results-container">
+        <h1 class="results-title">Your <span>Personalized</span> Recommendations</h1>
+        
+        <div class="results-grid">
+            {% for image in images %}
+            <a href='/moviepage/{{titles[loop.index0]}}' class="movie-card">
+                <img src="{{image}}" alt="{{titles[loop.index0]}}">
+                <div class="movie-overlay">
+                    <div class="movie-name">{{titles[loop.index0]}}</div>
+                    <div class="movie-meta">Click for details</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="try-again">
+            <a href="/" class="try-again-btn">
+                <i class="fas fa-redo"></i> Try Different Preferences
+            </a>
+        </div>
+    </div>
 </body>
 </html>

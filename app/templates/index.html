@@ -1,48 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Netflix Recommendation System</title>
-	<link rel="stylesheet" href="../static/stylesheets/style.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="../static/js/multiselect.min.js"></script>
-	<link rel="stylesheet" href="../static/stylesheets/multiselect.css"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlixPick - Personalized Movie Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-dark: #b20710;
+            --dark: #141414;
+            --light: #f5f5f5;
+            --gray: #808080;
+            --dark-gray: #2d2d2d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--light);
+        }
+        
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://assets.nflxext.com/ffe/siteui/vlv3/9d3533b2-0e2b-40b2-95e0-ecd7979cc88b/a3873901-5b7c-46eb-b9fa-12fea5197bd3/IN-en-20240311-popsignuptwoweeks-perspective_alpha_website_large.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin-top: 80px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            background: linear-gradient(to right, #e50914, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: var(--light);
+            font-weight: 300;
+        }
+        
+        .recommendation-form {
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--light);
+        }
+        
+        .multiselect-container {
+            position: relative;
+        }
+        
+        .select-box {
+            width: 100%;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--gray);
+            background-color: var(--dark-gray);
+            color: var(--light);
+            font-size: 1rem;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .select-box:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .dropdown-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            pointer-events: none;
+        }
+        
+        .selected-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .selected-item {
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .remove-item {
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .features {
+            padding: 80px 50px;
+            background-color: var(--dark);
+        }
+        
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-align: center;
+            color: var(--light);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background-color: var(--dark-gray);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+        
+        .feature-desc {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        footer {
+            background-color: #000;
+            padding: 30px 50px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: var(--light);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Custom dropdown styles */
+        .dropdown-options {
+            display: none;
+            position: absolute;
+            background-color: var(--dark-gray);
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 5px;
+            border: 1px solid var(--gray);
+            z-index: 10;
+            margin-top: 5px;
+        }
+        
+        .dropdown-options.show {
+            display: block;
+        }
+        
+        .option-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option-item:hover {
+            background-color: var(--primary);
+        }
+        
+        .search-box {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--gray);
+            position: sticky;
+            top: 0;
+            background-color: var(--dark-gray);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--gray);
+            background-color: var(--dark);
+            color: var(--light);
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1.2rem;
+            }
+            
+            .recommendation-form {
+                padding: 30px 20px;
+            }
+            
+            .features {
+                padding: 50px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-	<img src="../static/stylesheets/logo.svg" />
-	<div class="content">
-	<h1>Netflix Recommendation System</h1>	
-		<form name="passdata" action="/about" method="post">
-			<p1>Select atleast 4 TV Show/Movie Names that you like: </p1>
-			<select name="titles" multiple id="titles">
-				{% for title in titles %}
-				<option value= "{{title}}">{{title}}</option>"
-				{% endfor %}
-			</select>
-			<br>
-			<p1>Select Languages that you prefer: </p1>
-			<select name="languages" multiple id="languages">
-				{% for language in languages %}
-					<option value= "{{language}}">{{language}}</option>"
-				{% endfor %}
-			</select>
-			<br>
-			<input type="submit" value="Get Started">
-		</form>
-	</div>
-	<script>
-		$('#titles').multiselect({
-			columns: 1,
-			placeholder: 'Select Titles',
-			search: true,
-			selectAll: true
-		});
-		$('#languages').multiselect({
-			columns: 1,
-			placeholder: 'Select Languages',
-			search: true,
-			selectAll: true
-		});
-	</script>
+    <nav class="navbar">
+        <a href="#" class="logo">Flix<span>Pick</span></a>
+    </nav>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Your Next Favorite Movie</h1>
+            <p class="tagline">Our AI-powered recommendation engine finds perfect matches based on your taste</p>
+            
+            <div class="recommendation-form">
+                <form name="passdata" action="/about" method="post">
+                    <div class="form-group">
+                        <label for="titles" class="form-label">Select movies/shows you love (choose at least 4):</label>
+                        <div class="multiselect-container">
+                            <div class="select-box" id="titles-trigger">
+                                <span>Select your favorites</span>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </div>
+                            <div class="dropdown-options" id="titles-options">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" placeholder="Search movies..." id="titles-search">
+                                </div>
+                                {% for title in titles %}
+                                <div class="option-item" data-value="{{title}}">{{title}}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="selected-items" id="titles-selected"></div>
+                            <select name="titles" multiple id="titles" style="display: none;">
+                                {% for title in titles %}
+                                <option value="{{title}}">{{title}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="languages" class="form-label">Select preferred languages:</label>
+                        <div class="multiselect-container">
+                            <div class="select-box" id="languages-trigger">
+                                <span>Choose languages</span>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </div>
+                            <div class="dropdown-options" id="languages-options">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" placeholder="Search languages..." id="languages-search">
+                                </div>
+                                {% for language in languages %}
+                                <div class="option-item" data-value="{{language}}">{{language}}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="selected-items" id="languages-selected"></div>
+                            <select name="languages" multiple id="languages" style="display: none;">
+                                {% for language in languages %}
+                                <option value="{{language}}">{{language}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-play"></i> Get Recommendations
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <div class="features-container">
+            <h2 class="section-title">Why Choose FlixPick?</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Smart AI Recommendations</h3>
+                    <p class="feature-desc">Our advanced algorithm analyzes thousands of data points to find movies you'll love.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <h3 class="feature-title">Personalized Filters</h3>
+                    <p class="feature-desc">Filter by genre, language, mood, and more to get exactly what you want to watch.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="feature-title">Hidden Gems</h3>
+                    <p class="feature-desc">Discover amazing movies you might have missed with our unique recommendation engine.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="#" class="footer-link">About Us</a>
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Contact</a>
+        </div>
+        <p class="copyright">© 2023 FlixPick. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Custom multiselect functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Titles dropdown
+            const titlesTrigger = document.getElementById('titles-trigger');
+            const titlesOptions = document.getElementById('titles-options');
+            const titlesSearch = document.getElementById('titles-search');
+            const titlesSelected = document.getElementById('titles-selected');
+            const titlesSelect = document.getElementById('titles');
+            
+            // Languages dropdown
+            const languagesTrigger = document.getElementById('languages-trigger');
+            const languagesOptions = document.getElementById('languages-options');
+            const languagesSearch = document.getElementById('languages-search');
+            const languagesSelected = document.getElementById('languages-selected');
+            const languagesSelect = document.getElementById('languages');
+            
+            // Toggle dropdowns
+            titlesTrigger.addEventListener('click', function() {
+                titlesOptions.classList.toggle('show');
+                languagesOptions.classList.remove('show');
+            });
+            
+            languagesTrigger.addEventListener('click', function() {
+                languagesOptions.classList.toggle('show');
+                titlesOptions.classList.remove('show');
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!titlesTrigger.contains(e.target) && !titlesOptions.contains(e.target)) {
+                    titlesOptions.classList.remove('show');
+                }
+                if (!languagesTrigger.contains(e.target) && !languagesOptions.contains(e.target)) {
+                    languagesOptions.classList.remove('show');
+                }
+            });
+            
+            // Search functionality
+            titlesSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = titlesOptions.querySelectorAll('.option-item');
+                
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+            
+            languagesSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = languagesOptions.querySelectorAll('.option-item');
+                
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Select items
+            function setupDropdown(optionsContainer, selectedContainer, selectElement) {
+                const options = optionsContainer.querySelectorAll('.option-item');
+                
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const value = this.getAttribute('data-value');
+                        const text = this.textContent;
+                        
+                        // Check if already selected
+                        const alreadySelected = Array.from(selectElement.selectedOptions).some(opt => opt.value === value);
+                        
+                        if (alreadySelected) {
+                            // Remove selection
+                            Array.from(selectElement.options).forEach(opt => {
+                                if (opt.value === value) {
+                                    opt.selected = false;
+                                }
+                            });
+                            
+                            // Remove from selected items display
+                            const selectedItem = selectedContainer.querySelector(`[data-value="${value}"]`);
+                            if (selectedItem) {
+                                selectedItem.remove();
+                            }
+                        } else {
+                            // Add selection
+                            Array.from(selectElement.options).forEach(opt => {
+                                if (opt.value === value) {
+                                    opt.selected = true;
+                                }
+                            });
+                            
+                            // Add to selected items display
+                            const selectedItem = document.createElement('div');
+                            selectedItem.className = 'selected-item';
+                            selectedItem.setAttribute('data-value', value);
+                            selectedItem.innerHTML = `
+                                ${text}
+                                <span class="remove-item"><i class="fas fa-times"></i></span>
+                            `;
+                            selectedContainer.appendChild(selectedItem);
+                            
+                            // Add remove functionality
+                            selectedItem.querySelector('.remove-item').addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                Array.from(selectElement.options).forEach(opt => {
+                                    if (opt.value === value) {
+                                        opt.selected = false;
+                                    }
+                                });
+                                selectedItem.remove();
+                            });
+                        }
+                        
+                        // Update trigger text
+                        updateTriggerText(selectElement, selectElement.id === 'titles' ? titlesTrigger : languagesTrigger);
+                    });
+                });
+            }
+            
+            function updateTriggerText(selectElement, triggerElement) {
+                const selectedCount = Array.from(selectElement.selectedOptions).length;
+                if (selectElement.id === 'titles') {
+                    triggerElement.querySelector('span').textContent = selectedCount > 0 ? 
+                        `${selectedCount} selected` : 'Select your favorites';
+                } else {
+                    triggerElement.querySelector('span').textContent = selectedCount > 0 ? 
+                        `${selectedCount} selected` : 'Choose languages';
+                }
+            }
+            
+            // Initialize both dropdowns
+            setupDropdown(titlesOptions, titlesSelected, titlesSelect);
+            setupDropdown(languagesOptions, languagesSelected, languagesSelect);
+        });
+    </script>
 </body>
 </html>
